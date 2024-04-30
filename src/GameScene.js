@@ -14,7 +14,13 @@ const GameScene = () => {
             scene: {
                 preload: preload,
                 create: create,
-
+            },
+            pixelArt: true,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: false
+                }
             },
         };
 
@@ -22,32 +28,31 @@ const GameScene = () => {
 
         function preload() {
             this.load.setBaseURL('https://labs.phaser.io');
+            this.load.image('bg', 'assets/skies/space2.png');
             this.load.image('ball', 'assets/particles/red.png');
 
         }
 
         function create() {
-            let container = this.add.container(100, 100);
-            const ball = this.add.sprite(400, 300, 'ball'); // Add ball image to the scene
-            ball.setScale(0.5);
 
-            const row = Math.floor((2 - 1) / 3);
-            const col = (2 - 1) % 3;
-            ball.x = col * 100 + 50;
-            ball.y = row * 100 + 50;
+            this.add.image(400, 300, 'bg');
 
-            container.add(ball);
-            let tween = this.tweens.add({
-                targets: container,
-                y: 500, // Move the ball up and down
-                ease: 'Linear',
-                duration: 1000,
-                repeat: -1,
-                yoyo: true,
-                onCompleteCallback: function () {
-                    console.log('Tween has completed');
-                }
+            const ball = this.physics.add.sprite(200, 150, 'ball')
+                .setVelocity(300, -200)
+                .setCollideWorldBounds(true, 1, 1, true);
+
+            ball.body.acceleration.x = 500; // increase acceleration in x direction
+            ball.body.acceleration.y = 500; // increase acceleration in y direction
+
+            this.physics.world.on('worldbounds', (body, up, down, left, right) => {
+                const { gameObject } = body;
+
+                if (up) { gameObject.setAngle(90); }
+                else if (down) { gameObject.setAngle(-90); }
+                else if (left) { gameObject.setAngle(0); }
+                else if (right) { gameObject.setAngle(180); }
             });
+
         }
     }, []);
 
